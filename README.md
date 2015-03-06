@@ -1,10 +1,10 @@
 # skynetvm
 
-[skynet][] version manager
+[skynet](https://github.com/cloudwu/skynet) version manager
 
 ## Installation
 
-Just copy `skynetvm` into any directory in your `PATH`, or use [fresh][]
+Just copy `skynetvm` into any directory in your `PATH`, or use [fresh](http://freshshell.com/)
 
     fresh 3pjgames/skynetvm skynetvm --bin
 

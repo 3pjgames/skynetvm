@@ -1,10 +1,10 @@
 # skynetvm
 
-[skynet][] 版本管理
+[skynet](https://github.com/cloudwu/skynet) 版本管理
 
 ## 安装
 
-把 `skynetvm` 复制到包含在 `PATH` 中的目录即可，或者通过 [fresh][]
+把 `skynetvm` 复制到包含在 `PATH` 中的目录即可，或者通过 [fresh](http://freshshell.com/)
 
     fresh 3pjgames/skynetvm skynetvm --bin
 
