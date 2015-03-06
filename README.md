@@ -43,7 +43,7 @@ List installed versions.
 
 ### skynetvm skynet \[version\] configfile
 
-Run skynet with specified version and config file. The version is optional. The environment variable `SKYNET_ROOT` is set to the skynet root directory, and it is also added to `PATH`. See the [example config](https://github.com/3pjgames/skynetvm/example) that how to setup `lua_path` and `lua_cpath`.
+Run skynet with specified version and config file. The version is optional. The environment variable `SKYNET_ROOT` is set to the skynet root directory, and it is also added to `PATH`. See the [example config](https://github.com/3pjgames/skynetvm/blob/master/example) that how to setup `lua_path` and `lua_cpath`.
 
     $ skynetvm skynet example
 
