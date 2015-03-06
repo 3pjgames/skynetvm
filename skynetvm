@@ -1,0 +1,133 @@
+#!/bin/bash
+
+set -e
+[ -n "$DEBUG" ] && set -x
+
+SKYNETVM_ROOT="${SKYNETVM_ROOT:-$HOME/.skynetvm}"
+SKYNETVM_DEFAULT_VERSION_FILE="$SKYNETVM_ROOT/default"
+SKYNETVM_SCM_DIR="$SKYNETVM_ROOT/scm"
+
+main() {
+  local subcommand=help
+  if [ -n "$1" ]; then
+    subcommand="$1"
+    shift
+  fi
+  skynetvm_$subcommand "$@"
+}
+
+skynetvm_help() {
+  echo "Usage"
+  echo "	skynetvm install version"
+  echo "	skynetvm skynet [version] [arguments...]"
+  echo "	skynetvm exec [version] command [arguments...]"
+  echo "	skynetvm default [version]"
+  echo "	skynetvm versions"
+  echo
+  echo "Details: https://github.com/3pjgames/skynetvm"
+}
+
+skynetvm_install() {
+  local version="$1"
+  local version_root="$SKYNETVM_ROOT/versions/$version"
+  if [ -z "$version" ]; then
+    echo "skynetvm install version" >&2
+    exit 1
+  fi
+
+  if ! [ -d "$version_root" ]; then
+    _skynetvm_update
+    git clone "$SKYNETVM_SCM_DIR" "$version_root" --recursive --branch "$version"
+    cd "$version_root"
+    case "$(uname)" in
+      Linux)
+        make linux ;;
+      Darwin)
+        make macosx ;;
+      *)
+        echo "skynet is not supported in $(uname)"
+        exit 2
+        ;;
+    esac
+    # set as default if not set yet
+    if [ -z "$(skynetvm_default)" ]; then
+      skynetvm_default "$version"
+    fi
+  elif ! [ -x "$version_root/skynet" ]; then
+    echo "$version_root is broken, you can manually build skynet or delete the directory"
+  else
+    echo "skynet $version is already installed"
+    exit
+  fi
+}
+
+skynetvm_default() {
+  local version="$1"
+  if [ -z "$version" ]; then
+    if [ -f "$SKYNETVM_DEFAULT_VERSION_FILE" ]; then
+      cat "$SKYNETVM_DEFAULT_VERSION_FILE"
+    fi
+  else
+    echo "$version" > "$SKYNETVM_DEFAULT_VERSION_FILE"
+  fi
+}
+
+skynetvm_versions() {
+  cd "$SKYNETVM_ROOT/versions"
+  local version
+  for v in *; do
+    if [ -x "$v/skynet" ]; then
+      echo "$v"
+    fi
+  done
+}
+
+skynetvm_skynet() {
+  local version
+  if _skynetvm_is_version "$1"; then
+    version="$1"
+    shift
+  else
+    version="$(skynetvm_default)"
+  fi
+
+  skynetvm_exec "$version" skynet "$@"
+}
+
+skynetvm_exec() {
+  local version
+  if _skynetvm_is_version "$1"; then
+    version="$1"
+    shift
+  else
+    version="$(skynetvm_default)"
+
+    if [ -z "$version" ]; then
+      echo "require a skynet version" >&2
+      exit 1
+    elif ! _skynetvm_is_version "$version"; then
+      echo "skynet $version is not installed" >&2
+      exit 1
+    fi
+  fi
+
+  export SKYNET_ROOT="$SKYNETVM_ROOT/versions/$version"
+  export PATH="$SKYNET_ROOT:$PATH"
+  exec "$@"
+}
+
+_skynetvm_is_version() {
+  [ -x "$SKYNETVM_ROOT/versions/$1/skynet" ]
+}
+
+_skynetvm_update() {
+  local repo=git://github.com/cloudwu/skynet.git 
+  if ! [ -d "$SKYNETVM_SCM_DIR" ]; then
+    git clone $repo "$SKYNETVM_SCM_DIR" --mirror
+  else
+    cd "$SKYNETVM_SCM_DIR"
+    git fetch --force
+  fi
+}
+
+main "$@"
