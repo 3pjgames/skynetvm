@@ -37,6 +37,10 @@
     $ skynetvm default
     master
 
+### skynetvm versions
+
+列出已经安装的版本
+
 ### skynetvm skynet \[version\] configfile
 
 使用指定的版本和配置文件启动 skynet。版本可以省略。启动前会设置好环境变量 `SKYNET_ROOT` 指向对应版本 skynet 的根目录，该根目录也会添加进 `PATH`. 参考 [示例配置](https://github.com/3pjgames/skynetvm/example) 如何设置 `lua_path` 和 `lua_cpath`.
